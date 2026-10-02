@@ -66,6 +66,7 @@ const MailerLog = () => {
               <MailerLogTable
                 audienceData={audienceData}
                 subscribeData={subscribeData}
+                mailerLogData={mailerLogData}
               />
             </div>
           </div>

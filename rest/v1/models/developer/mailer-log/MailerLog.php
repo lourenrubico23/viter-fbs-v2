@@ -164,6 +164,21 @@ class MailerLog
         return $query;
     }
 
+    public function deleteBySubject()
+    {
+        try {
+            $sql = "delete from {$this->tblSendingEmailLog} ";
+            $sql .= "where sending_email_log_subject = :sending_email_log_subject ";
+            $query = $this->connection->prepare($sql);
+            $query->execute([
+                "sending_email_log_subject" => $this->sending_email_log_subject,
+            ]);
+        } catch (PDOException $ex) {
+            $query = false;
+        }
+        return $query;
+    }
+
     public function filterByStatus()
     {
         try {

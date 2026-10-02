@@ -1,0 +1,17 @@
+Upload JSX
+
+CONTROLLERS
+    -> rest/v1/controllers/developer/mailer-log/delete-by-subject.php
+    -> rest/v1/controllers/developer/mailer-log/functions.php
+
+MODELS
+    -> rest/v1/models/developer/mailer-log/MailerLog.php
+
+DB BACKUP
+    -> 
+
+HTACCESS
+    -> RewriteRule ^mailer-log/delete-by-subject$ controllers/developer/mailer-log/delete-by-subject.php [L]
+
+OTHER FILES
+    -> 

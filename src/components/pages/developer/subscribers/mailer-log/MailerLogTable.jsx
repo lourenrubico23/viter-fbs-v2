@@ -30,9 +30,11 @@ import {
 import { StoreContext } from "../../../../store/StoreContext";
 import MailerLogStatus from "./MailerLogStatus";
 import ModalAddMailerLog from "./ModalAddMailerLog";
+import ModalDeleteBySubject from "./ModalDeleteBySubject";
+import ModalDeleteMultiple from "./ModalDeleteMultiple";
 import ModalResendEmail from "./ModalResendEmail";
 
-const MailerLogTable = ({ audienceData, subscribeData }) => {
+const MailerLogTable = ({ audienceData, subscribeData, mailerLogData }) => {
   const { store, dispatch } = React.useContext(StoreContext);
   const [isFilter, setIsFilter] = React.useState(false);
   const [filterData, setfilterData] = React.useState("all");
@@ -61,6 +63,9 @@ const MailerLogTable = ({ audienceData, subscribeData }) => {
   const [isSuccessSendingEmail, setIsSuccessSendingEmail] =
     React.useState(false);
   const [queryStatus, setQueryStatus] = React.useState(null);
+  const [isDeleteMultiple, setIsDeleteMultiple] = React.useState(false);
+  const [selectedSubject, setSelectedSubject] = React.useState("");
+  const [isDeleteBySubject, setIsDeleteBySubject] = React.useState(false);
 
   let allMailListArray = [];
 
@@ -133,6 +138,12 @@ const MailerLogTable = ({ audienceData, subscribeData }) => {
     ).values(),
   ];
 
+  const subjectOptions = [
+    ...new Set(
+      mailerLogData?.data?.map((item) => item.sending_email_log_subject)
+    ),
+  ].filter(Boolean);
+
   const handleChangeFilter = (e) => {
     setfilterData(e.target.value);
     setIsFilter(false);
@@ -179,11 +190,14 @@ const MailerLogTable = ({ audienceData, subscribeData }) => {
       setSelectedCount((currentData) => [...currentData, item]);
     } else {
       setIsCheck(false);
+      setIsCheckAll(false);
       const newRecipientList = recipientList?.filter(
-        (_, index) => index !== key
+        (emailItem) =>
+          emailItem.sending_email_log_aid !== item.sending_email_log_aid
       );
       const newSelectedCount = selectedCount?.filter(
-        (_, index) => index !== key
+        (emailItem) =>
+          emailItem.sending_email_log_aid !== item.sending_email_log_aid
       );
       setRecipientList(newRecipientList);
       setSelectedCount(newSelectedCount);
@@ -327,6 +341,32 @@ const MailerLogTable = ({ audienceData, subscribeData }) => {
               )}
             </div>
           </div>
+
+          <div className="relative flex gap-2 items-end w-[250px]">
+            <div className="flex flex-col gap-2 w-full">
+              <label className="z-10">Delete by Subject</label>
+              <select
+                name="subject"
+                value={selectedSubject}
+                onChange={(e) => setSelectedSubject(e.target.value)}
+              >
+                <option value="">Select Subject</option>
+                {subjectOptions.map((subject, key) => (
+                  <option key={key} value={subject}>
+                    {subject}
+                  </option>
+                ))}
+              </select>
+            </div>
+            {selectedSubject && (
+              <button
+                className="btn-modal-submit w-fit !bg-red-600 !border-red-600 hover:!bg-red-700 whitespace-nowrap"
+                onClick={() => setIsDeleteBySubject(true)}
+              >
+                Delete
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="flex items-center gap-6">
@@ -369,7 +409,7 @@ const MailerLogTable = ({ audienceData, subscribeData }) => {
                 <input
                   type="checkbox"
                   name="subscriber_is_agree"
-                  className="w-3 h-3"
+                  className="w-5 h-5 cursor-pointer"
                   value={isCheckAll}
                   checked={isCheckAll}
                   onChange={(e) => handleCheckAll(e)}
@@ -453,8 +493,8 @@ const MailerLogTable = ({ audienceData, subscribeData }) => {
                       <td>
                         <input
                           type="checkbox"
-                          className="w-3 h-3"
-                          checked={handleGetCheckValue(item) || isCheckAll}
+                          className="w-5 h-5 cursor-pointer"
+                          checked={handleGetCheckValue(item)}
                           value={handleGetCheckValue(item)}
                           onChange={(e) => handleCheck(e, item, key)}
                         />
@@ -494,12 +534,20 @@ const MailerLogTable = ({ audienceData, subscribeData }) => {
         </table>
 
         {recipientList?.length > 0 && (
-          <button
-            onClick={() => handleMultipleResend()}
-            className="btn-modal-submit w-fit ml-auto mt-5 mr-5"
-          >
-            Resend
-          </button>
+          <div className="flex justify-end gap-2 mt-5 mr-5">
+            <button
+              onClick={() => handleMultipleResend()}
+              className="btn-modal-submit w-fit"
+            >
+              Resend
+            </button>
+            <button
+              onClick={() => setIsDeleteMultiple(true)}
+              className="btn-modal-submit w-fit !bg-red-600 !border-red-600 hover:!bg-red-700"
+            >
+              Delete Selected
+            </button>
+          </div>
         )}
 
         <div className="place-self-center">
@@ -567,6 +615,26 @@ const MailerLogTable = ({ audienceData, subscribeData }) => {
       )}
 
       {store.isAdd && <ModalAddMailerLog itemEdit={itemEdit} />}
+
+      {isDeleteMultiple && (
+        <ModalDeleteMultiple
+          recipientList={recipientList}
+          setIsDeleteMultiple={setIsDeleteMultiple}
+          setRecipientList={setRecipientList}
+          setIsCheck={setIsCheck}
+          setIsCheckAll={setIsCheckAll}
+          queryKey={"mailer-log"}
+        />
+      )}
+
+      {isDeleteBySubject && (
+        <ModalDeleteBySubject
+          subject={selectedSubject}
+          setIsDeleteBySubject={setIsDeleteBySubject}
+          setSelectedSubject={setSelectedSubject}
+          queryKey={"mailer-log"}
+        />
+      )}
     </>
   );
 };

@@ -48,11 +48,19 @@ function checkUpdateResendDate($object)
     return $query;
 }
 
-// delete mailer log 
+// delete mailer log
 function checkDeleteMailerLog($object)
 {
     $query = $object->deleteMailerLog();
     checkQuery($query, "There's a problem processing your request. (delete mailer log)");
+    return $query;
+}
+
+// delete mailer log by subject
+function checkDeleteBySubject($object)
+{
+    $query = $object->deleteBySubject();
+    checkQuery($query, "There's a problem processing your request. (delete by subject)");
     return $query;
 }
 
